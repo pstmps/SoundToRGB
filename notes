@@ -1,0 +1,254 @@
+FORMAT = pyaudio.paInt16
+CHANNELS = 1
+RATE = 44100
+CHUNK = 1024
+RECORD_SECONDS = 5
+WAVE_OUTPUT_FILENAME = "file.wav"
+
+audio = pyaudio.PyAudio()
+
+
+# start Recording
+stream = audio.open(format=FORMAT, channels=CHANNELS,
+                    rate=RATE, input=True,
+                    frames_per_buffer=CHUNK)
+print("recording...")
+frames = []
+
+for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+    data = stream.read(CHUNK)
+    #wf_data = self.input.read(self.CHUNK)
+    wf_data = struct.unpack(str(data) + 'h', data)
+    wf_data = np.array(data)
+    print(extract_peak_frequency(data, RATE))
+    frames.append(data)
+print("finished recording")
+
+
+
+# stop Recording
+stream.stop_stream()
+stream.close()
+audio.terminate()
+
+waveFile = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+waveFile.setnchannels(CHANNELS)
+waveFile.setsampwidth(audio.get_sample_size(FORMAT))
+waveFile.setframerate(RATE)
+waveFile.writeframes(b''.join(frames))
+waveFile.close()
+
+
+while True:
+while True:
+
+<!--
+function trim1 (str) {
+    return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
+}
+
+function decimalToHex(d) {
+    d = Math.round(d);
+    var hex = d.toString(16);
+    while (hex.length < 2) {
+        hex = "0" + hex;
+    }
+
+    return hex;
+}
+
+function convert()
+{
+    var input = document.getElementById("in").value;
+    input = trim1(input)
+
+    var w = parseFloat(input);
+
+    if (w >= 380 && w < 440)
+    {
+        red   = -(w - 440) / (440 - 380);
+        green = 0.0;
+        blue  = 1.0;
+    }
+    else if (w >= 440 && w < 490)
+    {
+        red   = 0.0;
+        green = (w - 440) / (490 - 440);
+        blue  = 1.0;
+    }
+    else if (w >= 490 && w < 510)
+    {
+        red   = 0.0;
+        green = 1.0;
+        blue  = -(w - 510) / (510 - 490);
+    }
+    else if (w >= 510 && w < 580)
+    {
+        red   = (w - 510) / (580 - 510);
+        green = 1.0;
+        blue  = 0.0;
+    }
+    else if (w >= 580 && w < 645)
+    {
+        red   = 1.0;
+        green = -(w - 645) / (645 - 580);
+        blue  = 0.0;
+    }
+    else if (w >= 645 && w < 781)
+    {
+        red   = 1.0;
+        green = 0.0;
+        blue  = 0.0;
+    }
+    else
+    {
+        red   = 0.0;
+        green = 0.0;
+        blue  = 0.0;
+    }
+
+
+    // Let the intensity fall off near the vision limits
+
+    if (w >= 380 && w < 420)
+        factor = 0.3 + 0.7*(w - 380) / (420 - 380);
+    else if (w >= 420 && w < 701)
+        factor = 1.0;
+    else if (w >= 701 && w < 781)
+        factor = 0.3 + 0.7*(780 - w) / (780 - 700);
+    else
+        factor = 0.0;
+
+    var gamma = 0.80;
+    var R = (red   > 0 ? 255*Math.pow(red   * factor, gamma) : 0);
+    var G = (green > 0 ? 255*Math.pow(green * factor, gamma) : 0);
+    var B = (blue  > 0 ? 255*Math.pow(blue  * factor, gamma) : 0);
+
+    var hex = "#" + decimalToHex(R) + decimalToHex(G) + decimalToHex(B);
+    var output = "RGB value: " + hex;
+    document.getElementById("result").firstChild.nodeValue = output;
+    document.getElementById("result").style.color = hex;
+}
+
+// -->
+
+
+
+def convert_nm_to_rgb(w):
+    gamma = 0.80
+
+    w = round(w)
+
+    if (w >= 380 and w < 440):
+        red = -(w - 440) / (440 - 380)
+        green = 0.0
+        blue = 1.0
+    elif (w >= 440 and w < 490):
+        red = 0.0
+        green = (w - 440) / (490 - 440)
+        blue = 1.0
+    elif (w >= 490 and w < 510):
+        red = 0.0
+        green = 1.0
+        blue = -(w - 510) / (510 - 490)
+    elif (w >= 510 and w < 580):
+        red = (w - 510) / (580 - 510)
+        green = 1.0
+        blue = 0.0
+    elif (w >= 580 and w < 645):
+        red = 1.0
+        green = -(w - 645) / (645 - 580)
+        blue = 0.0
+    elif (w >= 645 and w < 781):
+        red = 1.0
+        green = 0.0
+        blue = 0.0
+    else:
+        red = 0.0
+        green = 0.0
+        blue = 0.0
+
+    #print(red,green,blue)
+
+    if (w >= 380 and w < 420):
+        factor = 0.3 + 0.7 * (w - 380) / (420 - 380)
+    elif (w >= 420 and w < 701):
+        factor = 1.0
+    elif (w >= 701 and w < 781):
+        factor = 0.3 + 0.7 * (780 - w) / (780 - 700)
+    else:
+        factor = 0.0
+
+    #print(factor)
+
+    R = 255 * (red * factor) ** gamma if red > 0 else 0
+    G = 255 * (green * factor) ** gamma if green > 0 else 0
+    B = 255 * (blue * factor) ** gamma if blue > 0 else 0
+
+    R = round(R)
+    G = round(G)
+    B = round(B)
+
+    #R = hex(int(R))
+    #G = hex(int(G))
+    #B = hex(int(B))
+
+    return R,G,B
+
+
+   ---v2
+
+       if (w >= 380 and w < 440):
+        red = 1.0
+        green = 0.0
+        blue = -(w - 440) / (440 - 380)
+    elif (w >= 440 and w < 490):
+        red = 0.0
+        green = (w - 440) / (490 - 440)
+        blue = 1.0
+    elif (w >= 490 and w < 510):
+        red = 0.0
+        green = 1.0
+        blue = -(w - 510) / (510 - 490)
+    elif (w >= 510 and w < 580):
+        red = (w - 510) / (580 - 510)
+        green = 1.0
+        blue = 0.0
+    elif (w >= 580 and w < 645):
+        red = -(w - 645) / (645 - 580)
+        green = 0.0
+        blue = 1.0
+    elif (w >= 645 and w < 781):
+        red = 1.0
+        green = 0.0
+        blue = 0.0
+    else:
+        red = 0.0
+        green = 0.0
+        blue = 0.0
+
+
+        # def extract_peak_frequency(wf_data, rate):
+#     # Compute the power spectrum of the audio signal
+#     power_spectrum = np.abs(np.fft.fft(wf_data)) ** 2
+#     frequencies = np.fft.fftfreq(len(power_spectrum), 1 / rate)
+#     positive_mask = frequencies > 0
+#
+#     # Get the frequency and power of the peak in the power spectrum
+#     peak_freq = frequencies[positive_mask][np.argmax(power_spectrum[positive_mask])]
+#     peak_power = power_spectrum[positive_mask][np.argmax(power_spectrum[positive_mask])]
+#
+#     # Smooth the power spectrum using a Hann window
+#     window = np.hanning(len(power_spectrum))
+#     smoothed_spectrum = np.convolve(window / window.sum(), power_spectrum, mode='same')[positive_mask]
+#
+#     # Compute a weighted average of the frequencies around the peak
+#     freq_accumulator = np.zeros_like(smoothed_spectrum)
+#     for i in range(100):
+#         freqs = smoothed_spectrum * np.exp(-((frequencies[positive_mask] - peak_freq) / (0.01 * rate * i)) ** 2)
+#         freq_accumulator = np.pad(freq_accumulator, (0, 1), mode='constant')
+#         freq_accumulator += freqs
+#
+#     weighted_avg_freq = np.sum(frequencies[positive_mask] * freq_accumulator) / np.sum(freq_accumulator)
+#
+#     return weighted_avg_freq
